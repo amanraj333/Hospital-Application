@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hospital-deployment 
+  namespace: hospital
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: hospital-app
+  template:
+    metadata:
+      labels:
+        app: hospital-app
+    specs:
+      containers:
+      - name: hospital-container
+
+        image: 3aman/hospital-app:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        envForm:
+        - configMapRef:
+            name: hospital-config
+        - secretRef:
+            name: hospital-secret
+        volumeMounts:
+        - mountPath: /app/data
+          name: hospital-storage
+      volumes:
+      - name: hospital-storage
+        persistentVolumeClaim:
+          claimName: hospital-pvc
+          
+              

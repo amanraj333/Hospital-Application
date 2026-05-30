@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  
+spec:
+  replicas: {{ .Values.replicaCount}}
+
+  selector:
+    matchLabels:
+      app: hospital-app
+  template:
+    metadata:
+      labels:
+        app: hospital-app
+    specs:
+      containers:
+      - name: hospital-container
+
+        image: "{{ .Values.image.repository}}:{{ .Values.image.tag}}"
+        imagePullPolicy: {{ .Values.image.pullPolicy}}
+        ports:
+        - containerPort: {{ .Values.service.targetPort}}
+        envForm:
+        - configMapRef:
+            name: hospital-config
+        - secretRef:
+            name: hospital-secret
+        volumeMounts:
+        - mountPath: /app/data
+          name: hospital-storage
+      volumes:
+      - name: hospital-storage
+        persistentVolumeClaim:
+          claimName: hospital-pvc
